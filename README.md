@@ -17,3 +17,19 @@ A SKTVDL is a small program/script for downloading videos from television online
   - plus
   - wau
   - ta3
+
+# Notes
+
+- structure for setuptools
+- requirements.txt (for development) vs setup dependncies (for installation)
+- in packagename dir put `__init__.py` file and create method to be executed
+- complete `setup.py`
+  - `install_requires` - dependencies
+  - for cli execution after installation
+```py
+entry_points={
+    'console_scripts' : [
+        'sktvdl = sktvdl:main'
+    ]
+},
+```
