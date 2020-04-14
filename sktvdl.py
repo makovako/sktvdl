@@ -5,6 +5,7 @@ from enum import Enum
 import sys
 import youtube_dl
 import re
+import requests
 
 
 class Television(Enum):
@@ -48,6 +49,10 @@ def get_television(webpage_url):
         return Television.TA3
     elif "markiza" in domain:
         return Television.MARKIZA
+    elif "rtvs" in domain:
+        return Television.RTVS
+    elif "joj" in demain:
+        return Television.JOJ
     return Television.NONE
 
 
@@ -61,7 +66,7 @@ def extract_download_url(webpage):
         with webdriver.Firefox(options=options) as driver:
             driver.get(webpage)
             player = driver.find_elements_by_class_name('fp-player')
-            playlist = player[1].find_element_by_class_name('fp-playlist')
+            playlist = player[-1].find_element_by_class_name('fp-playlist')
             anchors = playlist.find_elements_by_tag_name('a')
             for anchor in anchors:
                 url = anchor.get_attribute('href')
@@ -97,6 +102,23 @@ def extract_download_url(webpage):
                     break
 
         return f"{date} {title}",video_url
+    elif television == Television.RTVS:
+        video_id = re.search(r'.*\/(\d*)', webpage).group(1)
+        dataurl = f"https://www.rtvs.sk/json/archive5f.json?id={video_id}"
+        data = requests.get(dataurl).json()["clip"]
+        title = data["title"]
+        date_match = re.search(r'(.*)\ (\d{2}):(\d{2})', data["datetime_create"])
+        date = f'{date_match.group(1)}-{date_match.group(2)}-{date_match.group(3)}'
+        for source in data["sources"]:
+            if "playlist.m3u8" in source["src"]:
+                video_url = source["src"]
+                break
+
+        return f"{date} {title}",video_url
+    # elif television == Television.JOJ:
+        # Joj works natively with youtube-dl, no complicated parsing of video_url required
+
+
     print("Coudn't parse")
     return "",""
 
