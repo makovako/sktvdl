@@ -51,7 +51,7 @@ def get_television(webpage_url):
         return Television.MARKIZA
     elif "rtvs" in domain:
         return Television.RTVS
-    elif "joj" in demain:
+    elif "joj" in domain:
         return Television.JOJ
     return Television.NONE
 
@@ -115,9 +115,22 @@ def extract_download_url(webpage):
                 break
 
         return f"{date} {title}",video_url
-    # elif television == Television.JOJ:
+    elif television == Television.JOJ:
         # Joj works natively with youtube-dl, no complicated parsing of video_url required
-
+        # Only complicated parsing of name of the video
+        with webdriver.Firefox(options=options) as driver:
+            driver.get(webpage)
+            info = driver.find_element_by_class_name('b-video-title')
+            title_el = info.find_element_by_css_selector('h2.title')
+            episode_span = title_el.find_element_by_tag_name('span')
+            title = title_el.text # it has name and episode withou space in it
+            episode = episode_span.text
+            title = title[:-len(episode)] + " " + episode
+            date_el = info.find_element_by_class_name('date') # 13.04.2020
+            match = re.search(r'.*\ (\d*).(\d*).(\d*)', date_el.text)
+            date = f"{match.group(3)}-{match.group(2)}-{match.group(1)}"
+            video_url = webpage
+        return f"{date} {title}",video_url
 
     print("Coudn't parse")
     return "",""
