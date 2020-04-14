@@ -1,2 +1,3 @@
 .vscode/
-venv
+venv/
+sktvdl/__pycache__/
