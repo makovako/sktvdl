@@ -33,3 +33,7 @@ entry_points={
     ]
 },
 ```
+- Changelog
+  - extension for vscode
+  - unified structure for changes
+  - keeps changes for history, makes it easy to create releases
